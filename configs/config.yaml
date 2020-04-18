@@ -1,0 +1,10 @@
+server:
+  domain: "registry.example.com"
+  address: "0.0.0.0"
+  port: "50111"
+token:
+  issuer: "docker.io"
+  expiration: 20
+tls:
+  cert: "/tmp/cert/server.pem"
+  key: "/tmp/cert/server.key"
