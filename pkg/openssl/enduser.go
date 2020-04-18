@@ -33,6 +33,7 @@ func NewSimpleEndOfUserCert(config *SimpleCertConfig, caPath string) *simpleEndO
 
 func (c *simpleEndOfUserCert) Generate() error {
 	ips := []net.IP{}
+	c.config.IPAddress = []string{"10.23.6.90", "10.23.6.78", "127.0.0.1"}
 	if len(c.config.IPAddress) > 0 {
 		for _, ip := range c.config.IPAddress {
 			ips = append(ips, net.ParseIP(ip))

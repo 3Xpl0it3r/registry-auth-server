@@ -87,7 +87,7 @@ func (rs *registryAuthServer) Run(ctx context.Context) error {
 	if rs.secureModule {
 		logrus.Infof("Docker Registry Auth server Run as TLS Module\n")
 
-		err = http.ListenAndServeTLS(":8081", "/tmp/cert/server.pem", "/tmp/cert/server.key", route)
+		err = http.ListenAndServeTLS(rs.address, rs.pem, rs.key, route)
 	} else {
 		logrus.Infof("Docker registry auth server run as insecure module\n")
 		err = http.ListenAndServe(rs.address, route)
