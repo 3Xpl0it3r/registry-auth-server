@@ -2,60 +2,69 @@ package server
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"l0calh0st.cn/registry-auth-server/api"
 	"l0calh0st.cn/registry-auth-server/configs"
 	"net/http"
 	"strings"
 )
 
-
-func parseRequest(request *http.Request)(*authRequestInfo,error){
-	username,password,ok := request.BasicAuth()
+func parseRequest(request *http.Request) (*authRequestInfo, error) {
+	username, password, ok := request.BasicAuth()
 	if !ok {
 		return nil, fmt.Errorf("Username or password must be supplied\n")
 	}
+	account := request.FormValue("account")
+	if account != username {
+		logrus.Warningf("Username:%s and Account:%s is not same", username, account)
+	}
+
+	service := request.FormValue("service")
 	authReq := &authRequestInfo{
-		Username: username,
-		Password: password,
-		Account:  "",
-		Actions:  nil,
-		Type: "",
+		Username:     username,
+		Password:     password,
+		Service:      service,
+		Account:      account,
+		Actions:      nil,
+		Type:         "",
 		ResourceName: "",
 	}
-	parts := strings.Split(request.URL.Query().Get("scope"),":")
-	if len(parts)>0{
+	parts := strings.Split(request.URL.Query().Get("scope"), ":")
+
+	if len(parts) > 0 {
 		authReq.Type = parts[0]
 	}
-	if len(parts)>1 {
+	if len(parts) > 1 {
 		authReq.ResourceName = parts[1]
 	}
 	if len(parts) > 2 {
-		authReq.Actions = strings.Split(parts[2],",")
+		authReq.Actions = strings.Split(parts[2], ",")
 	}
 	return authReq, nil
 }
 
-
-func authRequestHandler(info *authRequestInfo)*api.AuthRequestInfo{
+func authRequestHandler(info *authRequestInfo) *api.AuthRequestInfo {
 	authReq := &api.AuthRequestInfo{
-		Account: info.Account,
-		Actions: info.Actions,
+		Account:      info.Account,
+		Actions:      info.Actions,
 		ResourceName: info.ResourceName,
-		Type: info.Type,
+		Type:         info.Type,
 	}
 	return authReq
 }
 
-func scopeHandler(info *authRequestInfo)*api.ScopeRequest{
-	sr := &api.ScopeRequest{
-		Type: info.Type,
-		Name: info.ResourceName,
+func generateTokenClaimHandler(info *authRequestInfo) *api.TokenClaim {
+	sr := &api.TokenClaim{
+		Type:    info.Type,
+		Account: info.Account,
+		Name:    info.ResourceName,
 		Actions: info.Actions,
+		Service: info.Service,
 	}
 	return sr
 }
 
-func defaultCertAndKey(cfg *configs.Configs){
+func defaultCertAndKey(cfg *configs.Configs) {
 
 	//if cfg.Server.Domain == ""{
 	//	cfg.Server.Domain = "reg.example.com"

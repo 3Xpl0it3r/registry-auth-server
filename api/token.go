@@ -1,24 +1,21 @@
 package api
 
 type IToken interface {
-	GenerateToken(config *ScopeRequest)(string,error)
+	GenerateToken(claim *TokenClaim) (string, error)
 }
-
-
 
 type TokenConfig struct {
-	Issuer string
-	CertFile string
-	KeyFile string
+	Issuer     string
+	CertFile   string
+	KeyFile    string
 	Expiration int64
-	Scope ScopeRequest
+	Claim      TokenClaim
 }
 
-
-type ScopeRequest struct {
-	Type string
-	Name string
+type TokenClaim struct {
+	Type    string // scope
+	Account string
+	Name    string //scope
+	Service string //
 	Actions []string
 }
-
-

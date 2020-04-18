@@ -8,17 +8,14 @@ import (
 type staticBasicAuthenticator struct {
 }
 
-
-
-
-func NewStaticBasicAuthenticator()*staticBasicAuthenticator{
+func NewStaticBasicAuthenticator() *staticBasicAuthenticator {
 	logrus.Info("Load Authenticator Controller Successfully\n")
 	return &staticBasicAuthenticator{}
 }
 
-func(authn *staticBasicAuthenticator)Authenticate(username,password string)(bool,error){
-	if pwd,ok := whilteList[username];!ok {
-		if pwd == password{
+func (authn *staticBasicAuthenticator) Authenticate(username, password string) (bool, error) {
+	if pwd, ok := whilteList[username]; ok {
+		if pwd == password {
 			return true, nil
 		}
 	}
