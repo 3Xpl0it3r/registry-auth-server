@@ -17,7 +17,7 @@ Unpacking objects: 100% (85/85), done.
 ```
 2. **快速部署**
 ```bash
-[root@k3s registry-auth-server]# ./deployment/run.sh 
+[root@k3s registry-auth-server]# ./deployment/run.sh 192.168.1.23
 INFO[0000] Generate Ca Cert and Key Successfully        
 INFO[0000] Save Ca cert:/media/cert/ca.crt	Key:/media/cert/ca.key	Successfully 
 INFO[0000] Save Ca cert:/media/cert/server.crt	Key:/media/cert/server.key	Successfully 
