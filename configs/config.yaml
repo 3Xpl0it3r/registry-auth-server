@@ -7,5 +7,5 @@ token:
   expiration: 36000
 secureModule: false
 tls:
-  cert: "/media/cert/server.pem"
+  cert: "/media/cert/server.crt"
   key: "/media/cert/server.key"
