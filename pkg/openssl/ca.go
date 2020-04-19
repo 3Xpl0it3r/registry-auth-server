@@ -30,9 +30,12 @@ func NewSimpleRootCa(cfg *SimpleCertConfig) *simpleRootCert {
 }
 
 func (c *simpleRootCert) Generate() error {
+	serialNumber, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	ca := &x509.Certificate{
-		SerialNumber: big.NewInt(1653),
+		Issuer:       pkix.Name{CommonName: "docker reigstry"},
+		SerialNumber: serialNumber,
 		Subject: pkix.Name{
+			CommonName:         "docker reigstry",
 			Country:            c.config.Country,
 			Organization:       c.config.Organization,
 			OrganizationalUnit: c.config.OrganizationalUnit,
@@ -40,9 +43,9 @@ func (c *simpleRootCert) Generate() error {
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(2, 0, 0),
 		BasicConstraintsValid: true,
+		SubjectKeyId:          []byte{1, 2, 3, 4, 6},
 		IsCA:                  true,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 	}
 	caPriKey, _ := rsa.GenerateKey(rand.Reader, 1024)
 

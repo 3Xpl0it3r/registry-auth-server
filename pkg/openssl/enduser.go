@@ -16,49 +16,52 @@ import (
 )
 
 type simpleEndOfUserCert struct {
-	ca     *x509.Certificate
 	config *SimpleCertConfig
 	cert   []byte
 	key    []byte
+	//
+	caCert *x509.Certificate
+	caKey  *rsa.PrivateKey
 }
 
-func NewSimpleEndOfUserCert(config *SimpleCertConfig, caPath string) *simpleEndOfUserCert {
-	caCert, err := certFileToCertificateHelper(caPath)
+func NewSimpleEndOfUserCert(config *SimpleCertConfig, caCert, caKey string) *simpleEndOfUserCert {
+	cert, priK, err := parseCertAndKeyHandler(caCert, caKey)
+
 	if err != nil {
 		logrus.WithField("Stage", "Load CaFile").Errorln(err.Error())
 		return nil
 	}
-	return &simpleEndOfUserCert{ca: caCert, config: config}
+	return &simpleEndOfUserCert{config: config, caCert: cert, caKey: priK}
 }
 
 func (c *simpleEndOfUserCert) Generate() error {
-	ips := []net.IP{}
-	c.config.IPAddress = []string{"10.23.6.90", "10.23.6.78", "127.0.0.1"}
+	ips := []net.IP{net.ParseIP("127.0.0.1")}
 	if len(c.config.IPAddress) > 0 {
 		for _, ip := range c.config.IPAddress {
 			ips = append(ips, net.ParseIP(ip))
 		}
 	}
-
+	serialNumber, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	cert := &x509.Certificate{
-		SerialNumber: big.NewInt(1658),
+		SerialNumber: serialNumber,
 		Subject: pkix.Name{
+			CommonName:         "docker registry",
 			Country:            c.config.Country,
 			Organization:       c.config.Organization,
 			OrganizationalUnit: c.config.OrganizationalUnit,
 		},
-		NotBefore: time.Now(),
-		NotAfter:  time.Now().AddDate(10, 0, 0),
-		//SubjectKeyId: []byte{1,2,3,5,6},
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
-		DNSNames:    c.config.DNSName,
-		IPAddresses: ips,
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().AddDate(10, 0, 0),
+		SubjectKeyId: []byte{1, 2, 3, 4, 6},
+		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:     x509.KeyUsageDigitalSignature,
+		DNSNames:     c.config.DNSName,
+		IPAddresses:  ips,
 	}
 	privateKey, _ := rsa.GenerateKey(rand.Reader, 1024)
 	publicKey := &privateKey.PublicKey
 
-	certByte, err := x509.CreateCertificate(rand.Reader, cert, c.ca, publicKey, privateKey)
+	certByte, err := x509.CreateCertificate(rand.Reader, cert, c.caCert, publicKey, c.caKey)
 	if err != nil {
 		log.Println("create cert2failed")
 		return err

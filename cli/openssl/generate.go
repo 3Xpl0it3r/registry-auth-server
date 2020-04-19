@@ -19,6 +19,7 @@ var (
 )
 
 func newOpensslGenerateCommand() *cobra.Command {
+
 	var cert openssl.AbstractOpenssl
 
 	var certName, keyName string
@@ -34,15 +35,15 @@ func newOpensslGenerateCommand() *cobra.Command {
 			CaPath, err := cmd.Flags().GetString("ca")
 			if CaPath == "" || err != nil {
 				cert = openssl.NewSimpleRootCa(openssl.NewDefaultSimpleCertConfig())
-				certName = "ca.pem"
+				certName = "ca.crt"
 				keyName = "ca.key"
 			} else {
-				certName = "server.pem"
+				certName = "server.crt"
 				keyName = "server.key"
 				simpleCertConfig := openssl.NewDefaultSimpleCertConfig()
 				simpleCertConfig.DNSName = DomainList
 				simpleCertConfig.IPAddress = IpSan
-				cert = openssl.NewSimpleEndOfUserCert(simpleCertConfig, CaPath)
+				cert = openssl.NewSimpleEndOfUserCert(simpleCertConfig, path.Join(CaPath, "ca.crt"), path.Join(CaPath, "ca.key"))
 			}
 
 			var isCheckedFalse bool

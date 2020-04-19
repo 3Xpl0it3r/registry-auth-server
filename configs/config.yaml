@@ -5,7 +5,7 @@ server:
 token:
   issuer: "distribution-token-server"
   expiration: 36000
-secureModule: true
+secureModule: false
 tls:
-  cert: "/tmp/cert/server.pem"
-  key: "/tmp/cert/server.key"
+  cert: "/media/cert/server.pem"
+  key: "/media/cert/server.key"

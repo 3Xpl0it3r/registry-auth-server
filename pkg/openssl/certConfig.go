@@ -1,15 +1,16 @@
 package openssl
 
 type SimpleCertConfig struct {
+	CommonName                                string
 	Country, Organization, OrganizationalUnit []string
-	Expiration int64
-	DNSName []string
-	IPAddress []string
+	Expiration                                int64
+	DNSName                                   []string
+	IPAddress                                 []string
 }
 
-
-func NewDefaultSimpleCertConfig()*SimpleCertConfig{
+func NewDefaultSimpleCertConfig() *SimpleCertConfig {
 	return &SimpleCertConfig{
+		CommonName:         "l0calh0st.cn",
 		Country:            []string{"China"},
 		Organization:       []string{"docker"},
 		OrganizationalUnit: []string{"docker"},
